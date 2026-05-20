@@ -1270,8 +1270,13 @@ func validateCPUCount(drvName string) {
 		return
 	}
 
-	if cpuCount < minimumCPUS {
-		exitIfNotForced(reason.RsrcInsufficientCores, "Requested cpu count {{.requested_cpus}} is less than the minimum allowed of {{.minimum_cpus}}", out.V{"requested_cpus": cpuCount, "minimum_cpus": minimumCPUS})
+	minCPUs := minimumCPUS
+	if viper.GetBool(noKubernetes) {
+		minCPUs = 1
+	}
+
+	if cpuCount < minCPUs {
+		exitIfNotForced(reason.RsrcInsufficientCores, "Requested cpu count {{.requested_cpus}} is less than the minimum allowed of {{.minimum_cpus}}", out.V{"requested_cpus": cpuCount, "minimum_cpus": minCPUs})
 	}
 
 	if availableCPUs < cpuCount {
